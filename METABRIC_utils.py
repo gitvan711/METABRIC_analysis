@@ -37,6 +37,8 @@ def trainModel(model, train_dataloader, test_dataloader, criterion, optimiser, n
       train_loss += loss.item()
 
       avg_train_loss = train_loss / len(train_dataloader)
+      if verbose:
+        print(f'Epoch {epoch+1}/{num_epochs}, Train loss: {avg_train_loss:.3f}')
 
     # test loss
     model.eval() # set to evaluation mode
@@ -92,7 +94,7 @@ def validateModel(model, val_dataloader, criterion):
     return avg_val_loss
   
 
-def findbestModel(model_class, model_params, train_dataloader, test_dataloader, val_dataloader, criterion, optimiser, num_epochs, n_initialise=5):
+def findbestModel(model_class, model_params, train_dataloader, test_dataloader, val_dataloader, criterion, learning_rate, num_epochs, n_initialise=5):
   best_model = None
   best_val_loss = float('inf')
   best_train_loss = float('inf')
@@ -100,6 +102,7 @@ def findbestModel(model_class, model_params, train_dataloader, test_dataloader, 
   for i in range(n_initialise):
     print(f'Initialising: {i}')
     model = reinitialiseModel(model_class, model_params)
+    optimiser = torch.optim.Adam(model.parameters(), lr=learning_rate)
     model, train_loss = trainModel(model, train_dataloader, test_dataloader, criterion, optimiser, num_epochs, return_model=True)
     val_loss = validateModel(model, val_dataloader=val_dataloader, criterion=criterion)  
 
